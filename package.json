@@ -1,0 +1,35 @@
+{
+  "name": "chatcine",
+  "version": "1.0.0",
+  "description": "ChatCine - Aplicação Flask para chat sobre filmes com IA",
+  "scripts": {
+    "dev": ".\\venv\\Scripts\\python.exe start_server.py",
+    "start": ".\\venv\\Scripts\\python.exe start_server.py",
+    "test": "cd chatalfa && pytest",
+    "test:cov": "cd chatalfa && pytest --cov=chatcine --cov-report=html",
+    "test:watch": "cd chatalfa && pytest-watch",
+    "lint": "cd chatalfa && flake8 chatcine && black --check chatcine",
+    "lint:fix": "cd chatalfa && black chatcine",
+    "type-check": "cd chatalfa && mypy chatcine",
+    "init-db": "python init_db.py",
+    "migrate": "cd chatalfa && flask db migrate",
+    "upgrade": "cd chatalfa && flask db upgrade",
+    "setup": "python -m venv venv && pip install -r chatalfa/requirements.txt",
+    "install": "pip install -r chatalfa/requirements.txt"
+  },
+  "keywords": [
+    "flask",
+    "python",
+    "chat",
+    "movies",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.9.0"
+  }
+}
+

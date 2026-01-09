@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatCine 🍿</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+    <!-- SVG Sprite: Agrupamos todos os ícones aqui para reutilização -->
+    <div style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <symbol id="icon-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </symbol>
+            <symbol id="icon-attach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </symbol>
+            <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </symbol>
+            <symbol id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23"x2="16" y2="23"/>
+            </symbol>
+        </svg>
+    </div>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>ChatCine 🍿</h1>
+        </header>
+
+        <!-- Acessibilidade: aria-live="polite" faz o leitor de tela anunciar novas mensagens -->
+        <main id="chat-box" class="chat-box" aria-live="polite">
+            <!-- Mensagens flash agora são exibidas aqui, de forma mais genérica -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </main>
+
+        <footer class="chat-input-area">
+            <div id="attachment-preview-container">
+                <div id="attachment-preview"></div>
+                <button id="remove-attachment-btn" title="Remover anexo" aria-label="Remover anexo">×</button>
+            </div>
+            <form id="chat-form" novalidate>
+                <button type="button" id="attachment-button" title="Anexar arquivo" aria-label="Anexar arquivo">
+                    <svg width="24" height="24" aria-hidden="true"><use xlink:href="#icon-attach"></use></svg>
+                </button>
+                <input type="file" id="file-input" hidden accept="image/*,video/mp4,audio/*">
+                <div class="input-wrapper">
+                    <span id="recording-timer" class="hidden">00:00</span>
+                    <input type="text" id="message-input" placeholder="Digite uma mensagem..." autocomplete="off">
+                </div>
+                <div class="chat-buttons">
+                    <button type="submit" id="send-button" title="Enviar mensagem" aria-label="Enviar mensagem">
+                        <svg width="24" height="24" aria-hidden="true"><use xlink:href="#icon-send"></use></svg>
+                    </button>
+                    <button type="button" id="mic-button" title="Gravar áudio" aria-label="Gravar áudio">
+                        <svg width="24" height="24" aria-hidden="true"><use xlink:href="#icon-mic"></use></svg>
+                    </button>
+                </div>
+            </form>
+        </footer>
+    </div>
+
+    <!-- TEMPLATES PARA CONTEÚDO DINÂMICO -->
+    <!-- Estes são 'moldes' invisíveis que o JavaScript vai clonar e preencher -->
+
+    <template id="message-template">
+        <div class="message-wrapper">
+            <div class="message">
+                <!-- O conteúdo (texto ou card) será inserido aqui pelo JS -->
+            </div>
+        </div>
+    </template>
+
+    <template id="movie-card-template">
+        <div class="movie-card">
+            <div class="movie-poster">
+                <img src="https://via.placeholder.com/120x180?text=Carregando..." alt="" class="poster-img">
+            </div>
+            <div class="movie-details">
+                <p class="movie-title">
+                    <strong class="title-text"></strong> <span class="movie-year"></span>
+                </p>
+                <p class="movie-genres">🎭 <strong>Gêneros:</strong> <span class="genres-text"></span></p>
+                <p class="movie-rating">⭐ <strong>Nota:</strong> <span class="rating-text"></span></p>
+                <p class="movie-overview"></p>
+                <div class="movie-actions">
+                    <!-- Botões serão adicionados aqui pelo JS -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="recommendations-template">
+        <div class="recommendations-container">
+            <div class="recommendations-title">Recomendações baseadas neste filme:</div>
+            <div class="recommendations-grid">
+                <!-- Itens de recomendação serão adicionados aqui pelo JS -->
+            </div>
+        </div>
+    </template>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

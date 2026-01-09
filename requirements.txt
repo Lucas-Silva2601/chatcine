@@ -1,0 +1,43 @@
+# Flask Core
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Autenticação e Segurança
+Flask-Login==0.6.3
+Authlib==1.3.0
+python-dotenv==1.0.0
+
+# Banco de Dados
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+SQLAlchemy==2.0.23
+
+# APIs Externas
+google-generativeai==0.3.2
+google-cloud-speech==2.23.0
+requests==2.31.0
+Pillow==10.1.0
+
+# Validação e Serialização
+Flask-WTF==1.2.1
+WTForms==3.1.1
+marshmallow==3.20.1
+
+# Segurança
+Flask-Talisman==1.1.0
+Flask-Limiter==3.5.0
+
+# Desenvolvimento
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Cache (opcional)
+Flask-Caching==2.1.0
+
+# Logging
+python-json-logger==2.0.7
+
