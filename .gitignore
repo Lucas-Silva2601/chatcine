@@ -16,22 +16,18 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Ambiente Virtual
+# Ambiente Virtual Python
 venv/
 env/
 ENV/
-env.bak/
-venv.bak/
 .venv
 
 # Flask
-instance/
+backend/instance/
 .webassets-cache
 
 # Banco de Dados
@@ -39,11 +35,11 @@ instance/
 *.sqlite
 *.sqlite3
 
-# Arquivos de Log
+# Logs
 logs/
 *.log
 
-# Credenciais e Variáveis de Ambiente
+# Credenciais
 .env
 .env.local
 .env.*.local
@@ -52,96 +48,39 @@ google-credentials.json
 *secret*.json
 *key*.json
 
-# Testes e Cobertura
+# Testes
 .pytest_cache/
 .coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
 htmlcov/
-.tox/
-.nox/
 
-# IDEs e Editores
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend Build
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
-*.sublime-project
-*.sublime-workspace
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# Sistema Operacional
-# Windows
+# OS
 Thumbs.db
-ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+# Vite
+.vite/
 
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
-
-# Docker
-.dockerignore
-
-# Arquivos temporários
-*.tmp
-*.temp
-*.bak
-*.backup
-*.old
-
-# Arquivos de migração (opcional - descomente se não quiser versionar)
-# migrations/
-
+# ESLint
+.eslintcache
