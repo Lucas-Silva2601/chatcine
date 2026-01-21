@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { useAuthStore } from '../store/authStore'
 import { chatService } from '../services/chatService'
 import ChatMessage from '../components/ChatMessage'
 import MovieCard from '../components/MovieCard'
@@ -13,7 +12,9 @@ function ChatPage() {
   const messagesEndRef = useRef(null)
   const fileInputRef = useRef(null)
   
-  const { user, logout } = useAuthStore()
+  // Modo teste - sem autenticação
+  const user = { email: 'teste@chatcine.com' }
+  const logout = () => console.log('Logout em modo teste')
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

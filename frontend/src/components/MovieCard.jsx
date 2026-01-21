@@ -19,32 +19,43 @@ function MovieCard({ movie }) {
       setRecommendations(response.content || [])
       setShowRecommendations(true)
     } catch (error) {
-      console.error('Error fetching recommendations:', error)
+      console.error('Erro ao buscar recomendações:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleWatchNow = () => {
+    // Abre o IMDB ou outra plataforma de streaming
+    if (movie.imdb_id) {
+      window.open(`https://www.imdb.com/title/${movie.imdb_id}`, '_blank')
+    } else {
+      // Fallback para busca no Google
+      const searchQuery = encodeURIComponent(`${movie.title} ${movie.year} assistir online`)
+      window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank')
     }
   }
 
   return (
     <div className="movie-card">
       <div className="movie-header">
-        {movie.poster_path && (
+        {movie.poster_url && (
           <img
-            src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+            src={movie.poster_url}
             alt={movie.title}
             className="movie-poster"
           />
         )}
         <div className="movie-info">
           <h3>{movie.title}</h3>
-          {movie.release_date && (
+          {movie.year && (
             <p className="movie-year">
-              {new Date(movie.release_date).getFullYear()}
+              {movie.year}
             </p>
           )}
-          {movie.vote_average && (
+          {movie.rating && (
             <div className="movie-rating">
-              ⭐ {movie.vote_average.toFixed(1)}/10
+              ⭐ {movie.rating}
             </div>
           )}
         </div>
@@ -56,41 +67,49 @@ function MovieCard({ movie }) {
         </div>
       )}
 
-      {movie.genres && movie.genres.length > 0 && (
+      {movie.genres && (
         <div className="movie-genres">
-          {movie.genres.map((genre) => (
-            <span key={genre.id} className="genre-tag">
-              {genre.name}
+          {movie.genres.split(', ').map((genre, index) => (
+            <span key={index} className="genre-tag">
+              {genre}
             </span>
           ))}
         </div>
       )}
 
-      <button
-        onClick={handleGetRecommendations}
-        className="btn-recommendations"
-        disabled={loading}
-      >
-        {loading ? 'Carregando...' : showRecommendations ? 'Ocultar Recomendações' : 'Ver Recomendações'}
-      </button>
+      <div className="movie-actions">
+        <button
+          onClick={handleWatchNow}
+          className="btn-watch-now"
+        >
+          🎬 Assistir Agora
+        </button>
+        <button
+          onClick={handleGetRecommendations}
+          className="btn-recommendations"
+          disabled={loading}
+        >
+          {loading ? '⏳ Carregando...' : showRecommendations ? '🔼 Ocultar' : '🎯 Outras Recomendações'}
+        </button>
+      </div>
 
       {showRecommendations && recommendations.length > 0 && (
         <div className="recommendations-list">
-          <h4>Recomendações:</h4>
+          <h4>Você também pode gostar:</h4>
           <div className="recommendations-grid">
             {recommendations.map((rec, index) => (
               <div key={index} className="recommendation-item">
-                {rec.poster_path && (
+                {rec.poster_url && (
                   <img
-                    src={`https://image.tmdb.org/t/p/w200${rec.poster_path}`}
+                    src={rec.poster_url}
                     alt={rec.title}
                   />
                 )}
                 <div className="recommendation-info">
                   <h5>{rec.title}</h5>
-                  {rec.vote_average && (
-                    <span className="rec-rating">
-                      ⭐ {rec.vote_average.toFixed(1)}
+                  {rec.year && (
+                    <span className="rec-year">
+                      {rec.year}
                     </span>
                   )}
                 </div>

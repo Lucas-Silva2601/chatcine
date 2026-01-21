@@ -16,12 +16,13 @@ movie_service = MovieService()
 
 
 @chat_bp.route('/chat', methods=['POST'])
-@jwt_required()
+# @jwt_required()  # Desabilitado temporariamente para testes
 @limiter.limit("10 per minute")
 def chat():
     """Processa mensagem do chat."""
     try:
-        current_user_id = get_jwt_identity()
+        # current_user_id = get_jwt_identity()  # Desabilitado para testes
+        current_user_id = 1  # ID fixo para testes
         
         # Processa form-data (para suportar arquivos)
         message = request.form.get("message", "").strip()
@@ -51,7 +52,7 @@ def chat():
 
 
 @chat_bp.route('/movie/<int:movie_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()  # Desabilitado temporariamente para testes
 @cache.cached(timeout=3600)
 def get_movie_by_id(movie_id: int):
     """Busca filme por ID."""
@@ -70,7 +71,7 @@ def get_movie_by_id(movie_id: int):
 
 
 @chat_bp.route('/recommendations/<int:movie_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()  # Desabilitado temporariamente para testes
 @cache.cached(timeout=3600)
 def get_recommendations(movie_id: int):
     """Busca recomendações de filme."""

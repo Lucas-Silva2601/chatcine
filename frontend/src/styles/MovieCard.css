@@ -61,7 +61,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .genre-tag {
@@ -73,19 +73,55 @@
   color: var(--text-secondary);
 }
 
-.btn-recommendations {
-  width: 100%;
-  padding: 12px;
-  background: var(--primary-color);
+.movie-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-watch-now {
+  flex: 1;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
   color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+}
+
+.btn-watch-now:hover {
+  background: linear-gradient(135deg, #f40612 0%, #c70812 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+}
+
+.btn-recommendations {
+  flex: 1;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .btn-recommendations:hover:not(:disabled) {
-  background: #f40612;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
+}
+
+.btn-recommendations:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .recommendations-list {
@@ -142,6 +178,11 @@
   -webkit-box-orient: vertical;
 }
 
+.rec-year {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 .rec-rating {
   font-size: 0.8rem;
   color: #ffc107;
@@ -157,6 +198,15 @@
     height: auto;
     max-width: 200px;
     margin: 0 auto;
+  }
+
+  .movie-actions {
+    flex-direction: column;
+  }
+
+  .btn-watch-now,
+  .btn-recommendations {
+    width: 100%;
   }
 
   .recommendations-grid {

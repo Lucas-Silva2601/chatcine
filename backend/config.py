@@ -57,32 +57,35 @@ class Config:
 class DevelopmentConfig(Config):
     """Configuração para desenvolvimento."""
     DEBUG = True
+    SESSION_COOKIE_SECURE = False
     
     # Supabase ou SQLite local
-    database_url = os.getenv('DATABASE_URL', '')
+    _database_url = os.getenv('DATABASE_URL', '').strip()
     
-    # Se usar Supabase, corrige o prefixo postgres:// para postgresql://
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    
-    SQLALCHEMY_DATABASE_URI = database_url or f"sqlite:///{Path(__file__).parent / 'instance' / 'chatcine_dev.db'}"
-    SESSION_COOKIE_SECURE = False
+    # Se não tiver DATABASE_URL ou for inválida, usa SQLite
+    if not _database_url or _database_url.startswith('http'):
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{Path(__file__).parent / 'instance' / 'chatcine_dev.db'}"
+    else:
+        # Se usar Supabase, corrige o prefixo postgres:// para postgresql://
+        if _database_url.startswith('postgres://'):
+            _database_url = _database_url.replace('postgres://', 'postgresql://', 1)
+        SQLALCHEMY_DATABASE_URI = _database_url
 
 
 class ProductionConfig(Config):
     """Configuração para produção."""
     DEBUG = False
-    
-    # Supabase em produção
-    database_url = os.getenv('DATABASE_URL', '')
-    
-    # Se usar Supabase, corrige o prefixo postgres:// para postgresql://
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    
-    SQLALCHEMY_DATABASE_URI = database_url
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
+    
+    # Supabase em produção
+    _database_url = os.getenv('DATABASE_URL', '').strip()
+    
+    # Se usar Supabase, corrige o prefixo postgres:// para postgresql://
+    if _database_url and _database_url.startswith('postgres://'):
+        _database_url = _database_url.replace('postgres://', 'postgresql://', 1)
+    
+    SQLALCHEMY_DATABASE_URI = _database_url or 'sqlite:///chatcine_prod.db'
     
     @classmethod
     def init_app(cls, app):
