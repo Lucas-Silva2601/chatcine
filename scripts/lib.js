@@ -194,8 +194,11 @@ function openBrowser(url) {
   let args
 
   if (process.platform === 'win32') {
-    cmd = 'cmd'
-    args = ['/c', 'start', url]
+    // O `rundll32` é um executável de subsistema GUI: abre a URL pelo
+    // ShellExecute no navegador padrão sem criar nenhum console. O antigo
+    // `cmd /c start` não funcionava de forma confiável com `windowsHide`.
+    cmd = 'rundll32.exe'
+    args = ['url.dll,FileProtocolHandler', url]
   } else if (process.platform === 'darwin') {
     cmd = 'open'
     args = [url]
@@ -205,9 +208,13 @@ function openBrowser(url) {
   }
 
   try {
-    // Sem `detached` no Windows: ele força a criação de um console visível.
-    // O navegador em si continua aberto mesmo depois que o `cmd` termina.
-    const child = spawn(cmd, args, { stdio: 'ignore', windowsHide: true })
+    // `detached` mantém o processo vivo depois que este script termina. No
+    // Windows o `rundll32` é GUI, então não há console para aparecer.
+    const child = spawn(cmd, args, {
+      detached: true,
+      stdio: 'ignore',
+      windowsHide: true,
+    })
     child.on('error', () => {
       console.warn(`⚠️  Não foi possível abrir o navegador automaticamente. Acesse ${url}`)
     })
