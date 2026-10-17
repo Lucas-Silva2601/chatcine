@@ -39,7 +39,7 @@ O que começou como um projeto Flask + React foi **migrado para uma arquitetura 
 - 💬 **Chat com IA** — Assistente de cinema que responde sempre em JSON estruturado (`movie` · `recommendations` · `text`).
 - 🎞️ **Cards de filme dinâmicos** — Quando a IA identifica um filme, a interface renderiza um card com poster, ano, nota, gêneros, sinopse e link direto para o IMDb.
 - 🔍 **Recomendações inteligentes** — Peça sugestões e receba uma lista de filmes com poster e ano.
-- 🖼️ **Upload de arquivos** — Envio de imagem (análise) e áudio (transcrição, opcional via Google Cloud Speech).
+- 🖼️ **Upload de arquivos** — Envio de imagens e vídeos para análise pela IA.
 - 🔐 **Autenticação JWT** — Login e registro com tokens assinados (HS256) e estado persistido.
 - 🎨 **Tema escuro cinematográfico** — Visual inspirado em catálogos de streaming.
 - ⚡ **Servidor único** — Interface e API no mesmo Next.js, sem CORS e sem processo extra.
@@ -123,7 +123,7 @@ OLLAMA_API_KEY=      # https://ollama.com/settings/keys
 TMDB_API_KEY=        # https://www.themoviedb.org/settings/api
 
 # Opcionais
-OLLAMA_MODEL=        # padrão: gpt-oss:120b-cloud
+OLLAMA_MODEL=        # padrão: gemma4:31b-cloud
 JWT_SECRET_KEY=      # segredo dos tokens (troque em produção)
 ```
 
@@ -165,11 +165,10 @@ JWT_SECRET_KEY=      # segredo dos tokens (troque em produção)
 | ---------------- | -------------------------------------------------- |
 | Frontend         | Next.js 16 · React 19 · Tailwind CSS 4 · Zustand   |
 | API              | Next.js Route Handlers (mesmo servidor)            |
-| IA               | Ollama Cloud (`gpt-oss:120b-cloud`)                |
+| IA               | Ollama Cloud (`gemma4:31b-cloud`)                  |
 | Dados de filmes  | TMDB API                                           |
 | Persistência     | SQLite (`node:sqlite`)                             |
 | Autenticação     | JWT HS256 (`node:crypto`) · scrypt                 |
-| Opcional         | Google Cloud Speech (transcrição de áudio)         |
 
 ---
 

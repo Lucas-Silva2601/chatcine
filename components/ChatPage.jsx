@@ -96,7 +96,7 @@ function ChatPage() {
           {messages.length === 0 && (
             <div className="welcome-message">
               <h2>Bem-vindo ao ChatCine! 🍿</h2>
-              <p>Converse sobre filmes, peça recomendações ou envie imagens!</p>
+              <p>Converse sobre filmes, peça recomendações ou envie imagens e vídeos!</p>
             </div>
           )}
 
@@ -150,7 +150,7 @@ function ChatPage() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept="image/*,audio/*"
+                accept="image/*,video/*"
                 style={{ display: 'none' }}
               />
 
