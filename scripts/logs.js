@@ -22,8 +22,16 @@ function parseLines(args) {
 
 const lines = parseLines(process.argv.slice(2))
 
-// Log único da aplicação Next.js (páginas + API)
-const file = path.join(LOGS_DIR, 'app.log')
+// Logs da aplicação Next.js (páginas + API)
+const files = [
+  { label: 'saída', file: path.join(LOGS_DIR, 'app.log') },
+  { label: 'erros', file: path.join(LOGS_DIR, 'app.err.log') },
+]
 
-console.log(`━━━ ChatCine — ${path.relative(process.cwd(), file)} (últimas ${lines} linhas) ━━━`)
-console.log(tailFile(file, lines))
+console.log(`━━━ ChatCine — logs (últimas ${lines} linhas) ━━━`)
+
+for (const { label, file } of files) {
+  console.log('')
+  console.log(`── ${label}: ${path.relative(process.cwd(), file)} ──`)
+  console.log(tailFile(file, lines))
+}

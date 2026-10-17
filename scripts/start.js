@@ -10,7 +10,6 @@
  * Reinicie: npm run restart
  */
 
-const { spawn } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
 
@@ -23,6 +22,8 @@ const {
   sleep,
   ensureLogsDir,
   isPortListening,
+  isProcessAlive,
+  startBackgroundProcess,
   openBrowser,
   savePids,
   tailFile,
@@ -51,32 +52,53 @@ async function startApp({ open = true, timeout = 180000, production = false } = 
   ensureLogsDir()
 
   const appLog = path.join(LOGS_DIR, 'app.log')
-  const stamp = `# ChatCine — ${new Date().toLocaleString()}\n`
-  fs.writeFileSync(appLog, stamp)
+  const appErrLog = path.join(LOGS_DIR, 'app.err.log')
+  // Limpa os logs antes de cada inicialização. No Windows o Start-Process
+  // também trunca os arquivos ao redirecionar a saída.
+  fs.writeFileSync(appLog, '')
+  fs.writeFileSync(appErrLog, '')
 
-  const fd = fs.openSync(appLog, 'a')
   // Sobe o Next.js direto pelo binário local (evita recursão com `npm start`
   // e respeita a porta configurada sem depender de um script intermediário).
   const nextBin = path.join(APP_DIR, 'node_modules', 'next', 'dist', 'bin', 'next')
   const nextArgs = [nextBin, production ? 'start' : 'dev', '-p', String(APP_PORT)]
-  const proc = spawn(process.execPath, nextArgs, {
-    cwd: APP_DIR,
-    detached: true,
-    stdio: ['ignore', fd, fd],
-    windowsHide: true,
-  })
-  fs.closeSync(fd)
 
+  let appPid = null
   let exited = false
   let spawnError = null
-  proc.on('error', (error) => (spawnError = error))
-  proc.on('exit', () => (exited = true))
 
-  savePids({ app: proc.pid, startedAt: new Date().toISOString(), log: appLog })
+  try {
+    // No Windows, `detached: true` sempre cria um novo console visível (mesmo
+    // com `windowsHide: true`). O helper usa `Start-Process -WindowStyle
+    // Hidden` para subir o app sem janela e mantê-lo rodando em segundo plano.
+    const started = startBackgroundProcess(process.execPath, nextArgs, {
+      cwd: APP_DIR,
+      stdoutLog: appLog,
+      stderrLog: appErrLog,
+    })
+    appPid = started.pid
+
+    if (started.proc) {
+      started.proc.on('error', (error) => (spawnError = error))
+      started.proc.on('exit', () => (exited = true))
+    }
+  } catch (error) {
+    spawnError = error
+  }
+
+  if (appPid) {
+    savePids({
+      app: appPid,
+      startedAt: new Date().toISOString(),
+      log: appLog,
+      errorLog: appErrLog,
+    })
+  }
 
   console.log('🚀 Iniciando ChatCine...')
   console.log(`   • Aplicação (Next.js) → ${APP_URL}`)
   console.log(`   • Log                  → ${path.relative(ROOT, appLog)}`)
+  console.log(`   • Log de erros         → ${path.relative(ROOT, appErrLog)}`)
   console.log('')
 
   // ---------------------------------------------------------------------
@@ -88,6 +110,7 @@ async function startApp({ open = true, timeout = 180000, production = false } = 
   while (Date.now() < deadline) {
     if (spawnError) break
     if (exited) break
+    if (appPid && !isProcessAlive(appPid)) break
     if (await isPortListening(APP_PORT)) {
       ready = true
       break
@@ -101,6 +124,9 @@ async function startApp({ open = true, timeout = 180000, production = false } = 
     console.error('')
     console.error(`📄 Últimas linhas de ${path.relative(ROOT, appLog)}:`)
     console.error(tailFile(appLog, 40))
+    console.error('')
+    console.error(`📄 Últimas linhas de ${path.relative(ROOT, appErrLog)}:`)
+    console.error(tailFile(appErrLog, 40))
     return { ok: false }
   }
 

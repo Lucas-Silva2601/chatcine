@@ -57,6 +57,137 @@ async function waitForPort(port, timeoutMs = 120000, intervalMs = 1000) {
   return false
 }
 
+/** Escapa um valor para uso em string literal do PowerShell. */
+function quotePowerShell(value) {
+  return `'${String(value).replace(/'/g, "''")}'`
+}
+
+/** Escapa um argumento seguindo as regras da linha de comando do Windows. */
+function quoteWindowsArgument(value) {
+  const text = String(value)
+  if (!/[\s"]/.test(text)) return text
+
+  let result = '"'
+  let backslashes = 0
+
+  for (const char of text) {
+    if (char === '\\') {
+      backslashes += 1
+      continue
+    }
+    if (char === '"') {
+      result += '\\'.repeat(backslashes * 2 + 1) + '"'
+      backslashes = 0
+      continue
+    }
+    result += '\\'.repeat(backslashes) + char
+    backslashes = 0
+  }
+
+  return result + '\\'.repeat(backslashes * 2) + '"'
+}
+
+/**
+ * Inicia um processo em segundo plano sem abrir janela no Windows.
+ *
+ * `detached: true` sempre cria um novo console no Windows (mesmo com
+ * `windowsHide: true`). Por isso usamos o `Start-Process -WindowStyle Hidden`
+ * do PowerShell, que inicia o processo com a janela oculta e o mantém vivo
+ * depois que este script termina.
+ */
+function startHiddenWindowsProcess(execPath, args, { cwd, stdoutLog, stderrLog }) {
+  const pidFile = path.join(LOGS_DIR, 'app.pid.tmp')
+  const launcherLog = path.join(LOGS_DIR, 'launcher.log')
+  const argumentList = args.map(quoteWindowsArgument).join(' ')
+  const command = [
+    '$ErrorActionPreference = "Stop";',
+    `$p = Start-Process -FilePath ${quotePowerShell(execPath)}`,
+    `-ArgumentList ${quotePowerShell(argumentList)}`,
+    `-WorkingDirectory ${quotePowerShell(cwd)}`,
+    '-WindowStyle Hidden',
+    `-RedirectStandardOutput ${quotePowerShell(stdoutLog)}`,
+    `-RedirectStandardError ${quotePowerShell(stderrLog)}`,
+    '-PassThru;',
+    `Set-Content -LiteralPath ${quotePowerShell(pidFile)} -Value $p.Id -NoNewline -Encoding ascii`,
+  ].join(' ')
+
+  fs.rmSync(pidFile, { force: true })
+  const launcherFd = fs.openSync(launcherLog, 'w')
+
+  let result
+  try {
+    // Sem pipes: o processo filho herda os handles do arquivo de log. Se
+    // usássemos pipes, o `spawnSync` ficaria esperando o servidor terminar.
+    result = spawnSync(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', command],
+      {
+        windowsHide: true,
+        timeout: 30000,
+        stdio: ['ignore', launcherFd, launcherFd],
+      }
+    )
+  } finally {
+    fs.closeSync(launcherFd)
+  }
+
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    const detail = tailFile(launcherLog, 20).trim()
+    throw new Error(detail || 'Falha ao iniciar o processo em segundo plano.')
+  }
+
+  let pidText
+  try {
+    pidText = fs.readFileSync(pidFile, 'utf8').trim()
+  } finally {
+    fs.rmSync(pidFile, { force: true })
+  }
+
+  const pid = Number(pidText)
+  if (!Number.isInteger(pid) || pid <= 0) {
+    throw new Error('Não foi possível obter o PID do processo iniciado.')
+  }
+  return pid
+}
+
+/**
+ * Sobe um processo desacoplado do script atual.
+ * @returns {{ pid: number, proc: import('node:child_process').ChildProcess|null }}
+ */
+function startBackgroundProcess(execPath, args, { cwd, stdoutLog, stderrLog }) {
+  if (process.platform === 'win32') {
+    return {
+      pid: startHiddenWindowsProcess(execPath, args, { cwd, stdoutLog, stderrLog }),
+      proc: null,
+    }
+  }
+
+  const stdout = fs.openSync(stdoutLog, 'a')
+  const stderr = fs.openSync(stderrLog, 'a')
+  const proc = spawn(execPath, args, {
+    cwd,
+    detached: true,
+    stdio: ['ignore', stdout, stderr],
+    windowsHide: true,
+  })
+  fs.closeSync(stdout)
+  fs.closeSync(stderr)
+  proc.unref()
+
+  return { pid: proc.pid, proc }
+}
+
+/** Verifica se um processo ainda está vivo. */
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Abre uma URL no navegador padrão do sistema. */
 function openBrowser(url) {
   let cmd
@@ -74,7 +205,9 @@ function openBrowser(url) {
   }
 
   try {
-    const child = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: false })
+    // Sem `detached` no Windows: ele força a criação de um console visível.
+    // O navegador em si continua aberto mesmo depois que o `cmd` termina.
+    const child = spawn(cmd, args, { stdio: 'ignore', windowsHide: true })
     child.on('error', () => {
       console.warn(`⚠️  Não foi possível abrir o navegador automaticamente. Acesse ${url}`)
     })
@@ -171,6 +304,8 @@ module.exports = {
   ensureLogsDir,
   isPortListening,
   waitForPort,
+  isProcessAlive,
+  startBackgroundProcess,
   openBrowser,
   getPortPids,
   killPidTree,
