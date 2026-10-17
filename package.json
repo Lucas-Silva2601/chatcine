@@ -1,0 +1,45 @@
+{
+  "name": "chatcine",
+  "version": "4.0.0",
+  "private": true,
+  "description": "ChatCine - Chat sobre filmes com IA (Next.js + React)",
+  "scripts": {
+    "start": "node scripts/start.js",
+    "stop": "node scripts/stop.js",
+    "restart": "node scripts/restart.js",
+    "logs": "node scripts/logs.js",
+    "dev": "concurrently --kill-others-on-fail --names \"web,browser\" --prefix-colors magenta,gray \"npm run dev:server\" \"node scripts/open-when-ready.js\"",
+    "dev:server": "next dev -p 3000",
+    "build": "next build",
+    "preview": "next start -p 3000",
+    "install:all": "npm install"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "tailwindcss",
+    "chat",
+    "movies",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "next": "^16.1.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^4.4.7"
+  },
+  "optionalDependencies": {
+    "@google-cloud/speech": "^5.21.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "concurrently": "^9.0.0",
+    "tailwindcss": "^4.1.14"
+  }
+}

@@ -1,0 +1,97 @@
+/*
+ * Global styles - ChatCine (Next.js + Tailwind CSS v4)
+ *
+ * Estratégia de estilos:
+ *  1. Tailwind (camadas theme/utilities) fica DISPONÍVEL para uso nos
+ *     componentes, mas o reset global (preflight) é neutralizado abaixo,
+ *     para que o CSS legado continue definindo o visual exatamente como era.
+ *  2. Os arquivos de CSS da aplicação são importados no app/layout.jsx e
+ *     continuam valendo para as classes já existentes (.chat-page, .btn-*, etc).
+ *
+ * Regra prática: o CSS legado tem prioridade sobre as classes utilitárias do
+ * Tailwind quando atuam no mesmo elemento/propriedade. Prefira as classes
+ * existentes nos componentes atuais; use Tailwind em elementos novos.
+ */
+
+@import "tailwindcss";
+
+/* Cancela o reset global (preflight) do Tailwind para manter o CSS legado
+   como autoridade visual. As classes utilitárias continuam funcionando. */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: revert-layer;
+    border-width: revert-layer;
+    border-style: revert-layer;
+    border-color: revert-layer;
+  }
+
+  html {
+    line-height: revert-layer;
+    -webkit-text-size-adjust: revert-layer;
+    tab-size: revert-layer;
+  }
+
+  body {
+    margin: revert-layer;
+    line-height: inherit;
+    font-family: inherit;
+    background-color: var(--background-color, #141414);
+    color: var(--text-primary, #ffffff);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: revert-layer;
+    font-weight: revert-layer;
+    margin: 0;
+  }
+
+  p, blockquote, figure, dl, dd, pre {
+    margin: 0;
+  }
+
+  ul, ol {
+    list-style: revert-layer;
+    margin: revert-layer;
+    padding: revert-layer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: revert-layer;
+  }
+
+  button, input, optgroup, select, textarea {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+
+  button, [type="button"], [type="reset"], [type="submit"] {
+    appearance: button;
+    cursor: pointer;
+  }
+
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [hidden] {
+    display: none;
+  }
+}
+
+/* O app/ do Next.js não possui a div #root do Vite: o body assume a altura */
+body {
+  min-height: 100vh;
+}
